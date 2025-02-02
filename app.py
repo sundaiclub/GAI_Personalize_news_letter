@@ -176,7 +176,7 @@ if st.button("Generate Document"):
                         # Extract content from the link
                         title, content = extract_main_content(clean_url)
                         
-                        if content:
+                        if content:  # TODO: report on links for which we did not extract the content
                             # Summarize content using LLM
                             summary = summarize_content(llm, content, user_profile)
 
