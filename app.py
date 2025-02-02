@@ -8,6 +8,8 @@ import re
 from extract_content import extract_main_content
 from llm_interface import LLMFactory
 import urllib.parse
+from extract_links import extract_links_from_pdf, filter_article_links
+import tempfile
 
 load_dotenv()  # take environment variables from .env.
 
@@ -28,21 +30,6 @@ def get_llm(use_mock=True):
         if not api_key:
             raise ValueError("OpenAI API key not found in environment variables")
         return LLMFactory.create_llm("chatgpt", api_key=api_key)
-
-# Function to extract links from PDF
-def extract_links_from_pdf(pdf_file):
-    pdf_reader = PyPDF2.PdfReader(pdf_file)
-    links = set()
-    
-    # Regular expression for finding URLs
-    url_pattern = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
-    
-    for page in pdf_reader.pages:
-        text = page.extract_text()
-        found_links = re.findall(url_pattern, text)
-        links.update(found_links)
-    
-    return list(links)
 
 # Function to process content through LLM
 def summarize_content(llm, content, user_profile):
@@ -146,9 +133,19 @@ if st.button("Generate Document"):
             llm = get_llm(use_mock=not use_real_llm)  # Use mock by default
             progress_bar.progress(10)
             
-            # Extract links from PDF
+            # Save uploaded file temporarily
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
+                tmp_file.write(pdf_file.getvalue())
+                tmp_path = tmp_file.name
+            
+            # Extract links from PDF using the improved extractor
             status_text.text("Extracting links from PDF...")
-            links = extract_links_from_pdf(pdf_file)
+            raw_links = extract_links_from_pdf(tmp_path)
+            links = filter_article_links(raw_links)
+            
+            # Clean up temporary file
+            os.unlink(tmp_path)
+            
             progress_bar.progress(20)
             
             # Create document
@@ -159,32 +156,36 @@ if st.button("Generate Document"):
             
             # Process each link
             total_links = len(links)
-            for idx, link in enumerate(links, 1):
-                status_text.text(f"Processing link {idx} of {total_links}...")
-                progress = 20 + (60 * idx // total_links)  # Progress from 20% to 80%
-                progress_bar.progress(progress)
-                
-                try:
-                    # Clean and validate the URL
-                    clean_url = urllib.parse.unquote(link).strip()
+            if total_links == 0:
+                status_text.text("No valid links found in the PDF...")
+                doc.add_paragraph("No valid links were found in the provided PDF.")
+            else:
+                for idx, link in enumerate(links, 1):
+                    status_text.text(f"Processing link {idx} of {total_links}...")
+                    progress = 20 + (60 * idx // total_links)  # Progress from 20% to 80%
+                    progress_bar.progress(progress)
                     
-                    # Extract content from the link
-                    title, content = extract_main_content(clean_url)
-                    
-                    if content:
-                        # Summarize content using LLM
-                        summary = summarize_content(llm, content, user_profile)
+                    try:
+                        # Clean and validate the URL
+                        clean_url = urllib.parse.unquote(link).strip()
                         
-                        # Add to document
-                        doc.add_heading(f"Source {idx}: {title or clean_url}", level=2)
-                        doc.add_paragraph(f"URL: {clean_url}")
-                        doc.add_paragraph(summary)
-                        doc.add_paragraph()  # Add spacing
-                    
-                except Exception as e:
-                    doc.add_heading(f"Source {idx}: {clean_url}", level=2)
-                    doc.add_paragraph(f"Error processing this link: {str(e)}")
-                    continue
+                        # Extract content from the link
+                        title, content = extract_main_content(clean_url)
+                        
+                        if content:
+                            # Summarize content using LLM
+                            summary = summarize_content(llm, content, user_profile)
+                            
+                            # Add to document
+                            doc.add_heading(f"Source {idx}: {title or clean_url}", level=2)
+                            doc.add_paragraph(f"URL: {clean_url}")
+                            doc.add_paragraph(summary)
+                            doc.add_paragraph()  # Add spacing
+                        
+                    except Exception as e:
+                        doc.add_heading(f"Source {idx}: {clean_url}", level=2)
+                        doc.add_paragraph(f"Error processing this link: {str(e)}")
+                        continue
             
             # Final document preparation
             status_text.text("Preparing final document...")
