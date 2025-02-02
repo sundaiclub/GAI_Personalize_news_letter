@@ -26,7 +26,7 @@ def extract_main_content(url):
     """
     try:
         # Fetch the webpage
-        response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
+        response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=5)
         response.raise_for_status()
         
         # Parse the HTML

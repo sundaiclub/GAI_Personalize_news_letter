@@ -156,11 +156,15 @@ if st.button("Generate Document"):
             
             # Process each link
             total_links = len(links)
+
+            summaries = []
+
             if total_links == 0:
                 status_text.text("No valid links found in the PDF...")
                 doc.add_paragraph("No valid links were found in the provided PDF.")
             else:
                 for idx, link in enumerate(links, 1):
+                    print(link)
                     status_text.text(f"Processing link {idx} of {total_links}...")
                     progress = 20 + (60 * idx // total_links)  # Progress from 20% to 80%
                     progress_bar.progress(progress)
@@ -175,24 +179,21 @@ if st.button("Generate Document"):
                         if content:
                             # Summarize content using LLM
                             summary = summarize_content(llm, content, user_profile)
-                            
-                            # Add to document
-                            doc.add_heading(f"Source {idx}: {title or clean_url}", level=2)
-                            doc.add_paragraph(f"URL: {clean_url}")
-                            doc.add_paragraph(summary)
-                            doc.add_paragraph()  # Add spacing
+
+                            summaries.append(summary)
                         
                     except Exception as e:
                         doc.add_heading(f"Source {idx}: {clean_url}", level=2)
                         doc.add_paragraph(f"Error processing this link: {str(e)}")
                         continue
             
+
+            # use `summaries`
+            # TODO: convert summaries into markdown document with Akash's prompt
+
             # Final document preparation
             status_text.text("Preparing final document...")
             progress_bar.progress(90)
-
-
-            # TODO: fill me in with code to generate markdown output
 
 
             # todo: replace the markdown output with LLM call output
