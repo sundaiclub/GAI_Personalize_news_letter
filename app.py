@@ -2,6 +2,8 @@ import streamlit as st
 from docx import Document
 import io
 
+from GenerateWordDocument import generate_word_doc_from_markdown
+
 # --- Custom CSS for a cool, neat design ---
 st.markdown(
     """
@@ -63,23 +65,22 @@ if st.button("Generate Document"):
     elif not user_profile.strip():
         st.error("Please enter your user profile text.")
     else:
-        # Placeholder: Read the PDF file if needed (logic TBD)
-        # For now, we simply note that the PDF was uploaded.
         pdf_info = f"PDF file '{pdf_file.name}' received."
 
-        # --- Document Generation using python-docx ---
-        doc = Document()
-        doc.add_heading("Custom Generated Document", level=0)
-
-        # Insert PDF info (this is just an example placeholder)
-        doc.add_paragraph(pdf_info)
-
-        # Insert the user profile text
-        doc.add_heading("User Profile", level=1)
-        doc.add_paragraph(user_profile)
-
-        # Additional processing logic can be added here (TBD)
-        doc.add_paragraph("\n[TBD: Additional logic and content processing based on the inputs...]")
+        # todo: replace the markdown output with LLM call output
+        markdown_output = """
+            # Header 1
+            This is the first paragraph of the document.
+            
+            ## Header 2
+            This is another paragraph that follows a header.
+            
+            - Item 1 in a list
+            - Item 2 in a list
+            
+            Another paragraph here.
+        """
+        doc = generate_word_doc_from_markdown(markdown_output)
 
         # Save the document to a BytesIO stream
         doc_io = io.BytesIO()
