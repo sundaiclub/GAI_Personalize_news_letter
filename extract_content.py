@@ -12,6 +12,7 @@ def clean_text(text):
     lines = [line for line in lines if line]
     return '\n'.join(lines)
 
+# TODO: this doesn't work for all websites, need to find a better way to extract the main content for dynamically loaded content
 def extract_main_content(url):
     """
     Extract the main content from a given URL while filtering out advertisements
