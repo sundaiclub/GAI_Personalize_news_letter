@@ -123,7 +123,8 @@ pdf_file = st.file_uploader("Upload your PDF resource", type=["pdf"])
 user_profile = st.text_area("Enter your user profile text", height=200)
 
 # Add toggle for using real/mock LLM
-use_real_llm = st.checkbox("Use real ChatGPT (requires API key)", value=False)
+# use_real_llm = st.checkbox("Use real ChatGPT (requires API key)", value=False)
+use_real_llm = True
 
 # --- Processing Section ---
 st.header("Step 2: Generate Your Document")
