@@ -171,7 +171,6 @@ if st.button("Generate Document"):
                 status_text.text("No valid links found in the PDF...")
             else:
 
-                links = links[:5]  # just do first link for now
                 for idx, link in enumerate(links, 1):
                     print(link)
                     status_text.text(f"Processing link {idx} of {total_links}...")
