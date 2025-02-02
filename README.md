@@ -1,5 +1,7 @@
 # Personalized GAI News-Letter
 
+[Live App!](https://gai-personalize-news-letter-896897809220.us-central1.run.app/)!
+
 This repository contains a Streamlit app that allows users to upload a PDF resource and input their user profile text. The app then generates a custom Word document using `python-docx` based on the inputs. The app is containerized with Docker and is ready for deployment on Google Cloud Run.
 
 ## Table of Contents
