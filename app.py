@@ -147,13 +147,7 @@ if st.button("Generate Document"):
             os.unlink(tmp_path)
             
             progress_bar.progress(20)
-            
-            # Create document
-            doc = Document()
-            doc.add_heading("Personalized Content Summary", level=0)
-            doc.add_heading("User Profile", level=1)
-            doc.add_paragraph(user_profile)
-            
+
             # Process each link
             total_links = len(links)
 
@@ -161,7 +155,6 @@ if st.button("Generate Document"):
 
             if total_links == 0:
                 status_text.text("No valid links found in the PDF...")
-                doc.add_paragraph("No valid links were found in the provided PDF.")
             else:
                 for idx, link in enumerate(links, 1):
                     print(link)
@@ -183,10 +176,7 @@ if st.button("Generate Document"):
                             summaries.append(summary)
                         
                     except Exception as e:
-                        doc.add_heading(f"Source {idx}: {clean_url}", level=2)
-                        doc.add_paragraph(f"Error processing this link: {str(e)}")
                         continue
-            
 
             # use `summaries`
             # TODO: convert summaries into markdown document with Akash's prompt
@@ -194,7 +184,6 @@ if st.button("Generate Document"):
             # Final document preparation
             status_text.text("Preparing final document...")
             progress_bar.progress(90)
-
 
             # todo: replace the markdown output with LLM call output
             markdown_output = """
@@ -211,7 +200,6 @@ if st.button("Generate Document"):
             """
             doc = generate_word_doc_from_markdown(markdown_output)
 
-            
             # Save the document to a BytesIO stream
             doc_io = io.BytesIO()
             doc.save(doc_io)
