@@ -33,15 +33,23 @@ def get_llm(use_mock=True):
 
 # Function to process content through LLM
 def summarize_content(llm, content, user_profile):
-    prompt = f"""
-    Given the following user profile:
-    {user_profile}
+    # prompt = f"""
+    # Given the following user profile:
+    # {user_profile}
     
+    # Please provide a concise summary of the following content, focusing on aspects that would be most relevant to the user profile:
+    
+    # {content}
+    
+    # Please strictly limit the summary to 2-3 paragraphs. If there is no content that is directly relevant to the user profile and their business strategy, please indicate this in your response and do not provide a summary.
+    # """
+
+    prompt = f"""
     Please provide a concise summary of the following content, focusing on aspects that would be most relevant to the user profile:
     
     {content}
     
-    Provide the summary in 2-3 paragraphs.
+    Please strictly limit the summary to 2-3 paragraphs.
     """
     
     response = llm.generate_response(prompt, max_tokens=300, temperature=0.7)
@@ -115,14 +123,6 @@ if st.button("Generate Document"):
     else:
         pdf_info = f"PDF file '{pdf_file.name}' received."
 
-        # Provide a download button for the generated DOCX file
-        # st.success("Document generated successfully!")
-        # st.download_button(
-        #     label="Download Generated Document",
-        #     data=doc_io,
-        #     file_name="generated_document.docx",
-        #     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        # )
         try:
             # Create progress bar
             progress_bar = st.progress(0)
@@ -156,6 +156,8 @@ if st.button("Generate Document"):
             if total_links == 0:
                 status_text.text("No valid links found in the PDF...")
             else:
+
+                links = links[:5]  # just do first link for now
                 for idx, link in enumerate(links, 1):
                     print(link)
                     status_text.text(f"Processing link {idx} of {total_links}...")
@@ -171,7 +173,11 @@ if st.button("Generate Document"):
                         
                         if content:  # TODO: report on links for which we did not extract the content
                             # Summarize content using LLM
+
+                            print(len(content))
                             summary = summarize_content(llm, content, user_profile)
+
+                            print('SUMMARY: ', summary)
 
                             summaries.append(summary)
                         
@@ -185,7 +191,7 @@ if st.button("Generate Document"):
             status_text.text("Preparing final document...")
             progress_bar.progress(90)
 
-            # todo: replace the markdown output with LLM call output
+            # TODO: replace the markdown output with LLM call output
             markdown_output = """
                 # Header 1
                 This is the first paragraph of the document.

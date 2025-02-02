@@ -102,8 +102,8 @@ class ChatGPTLLM(LLMInterface):
         
         try:
             # Get optional parameters with defaults
-            temperature = kwargs.get('temperature', 0.7)
-            max_tokens = kwargs.get('max_tokens', 150)
+            temperature = kwargs.get('temperature', 0.3)
+            max_tokens = kwargs.get('max_tokens', 300)
             
             # Create the ChatGPT request
             response = self.client.chat.completions.create(
