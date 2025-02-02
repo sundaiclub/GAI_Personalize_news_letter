@@ -55,6 +55,20 @@ def summarize_content(llm, content, user_profile):
     response = llm.generate_response(prompt, max_tokens=300, temperature=0.7)
     return response.text
 
+
+def synthesize_summaries(llm, user_profile, summaries):
+    with open('prompt.txt', 'r') as f:
+        prompt = f.read()
+
+    prompt = prompt.replace('{profile}', user_profile)
+
+    summaries = [f"## Article {idx+1}\n{summary}" for idx, summary in enumerate(summaries)]
+    prompt = prompt.replace('{articles}', '\n'.join(summaries))
+
+    response = llm.generate_response(prompt, max_tokens=300, temperature=0.4)
+    return response.text
+
+
 from GenerateWordDocument import generate_word_doc_from_markdown
 
 # --- Custom CSS for a cool, neat design ---
@@ -184,26 +198,20 @@ if st.button("Generate Document"):
                     except Exception as e:
                         continue
 
-            # use `summaries`
-            # TODO: convert summaries into markdown document with Akash's prompt
 
             # Final document preparation
             status_text.text("Preparing final document...")
             progress_bar.progress(90)
 
-            # TODO: replace the markdown output with LLM call output
-            markdown_output = """
-                # Header 1
-                This is the first paragraph of the document.
-                
-                ## Header 2
-                This is another paragraph that follows a header.
-                
-                - Item 1 in a list
-                - Item 2 in a list
-                
-                Another paragraph here.
-            """
+            synthesis_llm = get_llm(use_mock=not use_real_llm)
+
+            markdown_output = synthesize_summaries(synthesis_llm, user_profile, summaries)
+
+
+            print('MARKDOWN OUTPUT: ', markdown_output)
+
+            
+
             doc = generate_word_doc_from_markdown(markdown_output)
 
             # Save the document to a BytesIO stream

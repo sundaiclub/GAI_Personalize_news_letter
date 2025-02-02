@@ -2,7 +2,7 @@
 {articles}
 
 # Detailed Selection Criteria
-{profile / criteria}
+{profile}
 
 # Output Format
 Act as a technology industry analyst specializing in generative AI and its applications across industries. You will be provided with an article or a list of articles. For each article, extract key insights that help AI leaders—including C-level executives, product owners and managers, CIOs, and IT leaders—make informed strategic decisions.
