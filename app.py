@@ -126,38 +126,16 @@ if st.button("Generate Document"):
     elif not user_profile.strip():
         st.error("Please enter your user profile text.")
     else:
-<<<<<<< Updated upstream
         pdf_info = f"PDF file '{pdf_file.name}' received."
 
-        # todo: replace the markdown output with LLM call output
-        markdown_output = """
-            # Header 1
-            This is the first paragraph of the document.
-            
-            ## Header 2
-            This is another paragraph that follows a header.
-            
-            - Item 1 in a list
-            - Item 2 in a list
-            
-            Another paragraph here.
-        """
-        doc = generate_word_doc_from_markdown(markdown_output)
-
-        # Save the document to a BytesIO stream
-        doc_io = io.BytesIO()
-        doc.save(doc_io)
-        doc_io.seek(0)
-
         # Provide a download button for the generated DOCX file
-        st.success("Document generated successfully!")
-        st.download_button(
-            label="Download Generated Document",
-            data=doc_io,
-            file_name="generated_document.docx",
-            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        )
-=======
+        # st.success("Document generated successfully!")
+        # st.download_button(
+        #     label="Download Generated Document",
+        #     data=doc_io,
+        #     file_name="generated_document.docx",
+        #     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        # )
         try:
             # Create progress bar
             progress_bar = st.progress(0)
@@ -211,6 +189,26 @@ if st.button("Generate Document"):
             # Final document preparation
             status_text.text("Preparing final document...")
             progress_bar.progress(90)
+
+
+            # TODO: fill me in with code to generate markdown output
+
+
+            # todo: replace the markdown output with LLM call output
+            markdown_output = """
+                # Header 1
+                This is the first paragraph of the document.
+                
+                ## Header 2
+                This is another paragraph that follows a header.
+                
+                - Item 1 in a list
+                - Item 2 in a list
+                
+                Another paragraph here.
+            """
+            doc = generate_word_doc_from_markdown(markdown_output)
+
             
             # Save the document to a BytesIO stream
             doc_io = io.BytesIO()
@@ -239,7 +237,6 @@ if st.button("Generate Document"):
                 progress_bar.empty()
             if 'status_text' in locals():
                 status_text.empty()
->>>>>>> Stashed changes
 
 # Close the main container div
 st.markdown("</div>", unsafe_allow_html=True)
