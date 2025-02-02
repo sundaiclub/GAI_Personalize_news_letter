@@ -36,3 +36,9 @@ This repository contains a Streamlit app that allows users to upload a PDF resou
    ```bash
    git clone https://github.com/yourusername/your-repo.git
    cd your-repo
+
+
+## Next Steps
+- Add an API for the user to be able to trigger a generation of the news letter
+- Send emails with reports to designated recipients
+- Add a persistence layer and UI for the user to be able to input and modify their user profile

@@ -15,7 +15,7 @@ load_dotenv()  # take environment variables from .env.
 
 # Initialize LLM
 @st.cache_resource
-def get_llm(use_mock=True):
+def get_llm(use_mock=True, model="gpt-3.5-turbo"):
     """
     Get an LLM instance, either mock or real ChatGPT.
     
@@ -29,7 +29,7 @@ def get_llm(use_mock=True):
         api_key = os.getenv('OPENAI_API_KEY')
         if not api_key:
             raise ValueError("OpenAI API key not found in environment variables")
-        return LLMFactory.create_llm("chatgpt", api_key=api_key)
+        return LLMFactory.create_llm("chatgpt", api_key=api_key, model=model)
 
 # Function to process content through LLM
 def summarize_content(llm, content, user_profile):
@@ -62,10 +62,10 @@ def synthesize_summaries(llm, user_profile, summaries):
 
     prompt = prompt.replace('{profile}', user_profile)
 
-    summaries = [f"## Article {idx+1}\n{summary}" for idx, summary in enumerate(summaries)]
+    summaries = [f"## Article {idx+1}\nURL: {url}\n{summary}" for idx, (url, summary) in enumerate(summaries)]
     prompt = prompt.replace('{articles}', '\n'.join(summaries))
 
-    response = llm.generate_response(prompt, max_tokens=300, temperature=0.4)
+    response = llm.generate_response(prompt, max_tokens=5000, temperature=0.4)
     return response.text
 
 
@@ -193,7 +193,7 @@ if st.button("Generate Document"):
 
                             print('SUMMARY: ', summary)
 
-                            summaries.append(summary)
+                            summaries.append((clean_url,summary))
                         
                     except Exception as e:
                         continue
@@ -203,7 +203,7 @@ if st.button("Generate Document"):
             status_text.text("Preparing final document...")
             progress_bar.progress(90)
 
-            synthesis_llm = get_llm(use_mock=not use_real_llm)
+            synthesis_llm = get_llm(use_mock=not use_real_llm, model="gpt-4o")
 
             markdown_output = synthesize_summaries(synthesis_llm, user_profile, summaries)
 
